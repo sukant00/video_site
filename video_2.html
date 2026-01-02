@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video with Content</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: #0f0f0f;
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+/* ===== CONTAINER ===== */
+#main-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+/* ===== VIDEO SECTION ===== */
+#video-section {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+#video-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1 / 1;
+  background: #000;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* Disable fullscreen and download buttons */
+video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+video::-moz-media-controls-fullscreen-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls-download-button {
+  display: none !important;
+}
+
+video::-internal-media-controls-download-button {
+  display: none !important;
+}
+
+/* ===== CONTENT SECTION ===== */
+#content-section {
+  background: #fff;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Embed container */
+#embed-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #fff;
+}
+
+#content-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Loading state */
+#loading-state {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#loading-state p {
+  color: #aaa;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.manual-link {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.manual-link:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Desktop/Tablet landscape - side by side */
+@media (min-width: 1024px) and (orientation: landscape) {
+  #main-container {
+    flex-direction: row;
+    height: 100vh;
+  }
+  
+  #video-section {
+    flex: 0 0 50%;
+    height: 100vh;
+    padding: 20px;
+  }
+  
+  #video-wrapper {
+    max-width: min(80vh, 600px);
+    max-height: 80vh;
+  }
+  
+  #content-section {
+    flex: 0 0 50%;
+    height: 100vh;
+  }
+}
+
+/* Tablet portrait */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #video-section {
+    padding: 15px;
+    height: 50vh;
+  }
+  
+  #video-wrapper {
+    max-width: 500px;
+    max-height: 45vh;
+  }
+  
+  #content-section {
+    height: 50vh;
+  }
+}
+
+/* Mobile landscape */
+@media (max-width: 767px) and (orientation: landscape) {
+  #main-container {
+    flex-direction: row;
+    height: 100vh;
+  }
+  
+  #video-section {
+    flex: 0 0 45%;
+    height: 100vh;
+    padding: 5px;
+  }
+  
+  #video-wrapper {
+    max-width: 90vh;
+    max-height: 90vh;
+  }
+  
+  #content-section {
+    flex: 0 0 55%;
+    height: 100vh;
+  }
+}
+
+/* Mobile portrait */
+@media (max-width: 767px) and (orientation: portrait) {
+  #video-section {
+    padding: 8px;
+    height: 50vh;
+  }
+  
+  #video-wrapper {
+    max-width: 95vw;
+    max-height: 45vh;
+  }
+  
+  #content-section {
+    height: 50vh;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  #video-section {
+    padding: 5px;
+    height: 45vh;
+  }
+  
+  #video-wrapper {
+    max-width: 98vw;
+    max-height: 42vh;
+  }
+  
+  #content-section {
+    height: 55vh;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="main-container">
+  <!-- VIDEO SECTION -->
+  <div id="video-section">
+    <div id="video-wrapper">
+      <video id="videoPlayer"
+             controls
+             autoplay
+             muted
+             playsinline
+             loop
+             controlslist="nodownload nofullscreen noremoteplayback"
+             disablepictureinpicture>
+        <source src="https://vz-148705f6-876.b-cdn.net/83ee655b-2133-4f97-b28f-42357bee2696/playlist.m3u8"
+            type="application/x-mpegURL">
+        Your browser does not support video.
+      </video>
+    </div>
+  </div>
+
+  <!-- CONTENT SECTION -->
+  <div id="content-section">
+    <div id="embed-container">
+      <!-- This will be populated with embed tag -->
+    </div>
+    
+    <div id="loading-state">
+      <div class="spinner"></div>
+      <p>Loading content...</p>
+      <a href="#" class="manual-link" id="manual-open">Open in New Window</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SMART_LINK = "https://adclickad.com/get/?spot_id=6099728&cat=25&subid=679049624";
+
+const video = document.getElementById("videoPlayer");
+const embedContainer = document.getElementById("embed-container");
+const loadingState = document.getElementById("loading-state");
+const manualOpenBtn = document.getElementById("manual-open");
+
+// Disable right click on video
+video.oncontextmenu = e => e.preventDefault();
+
+// Prevent fullscreen
+video.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+});
+
+video.addEventListener('webkitfullscreenchange', () => {
+  if (document.webkitFullscreenElement) {
+    document.webkitExitFullscreen();
+  }
+});
+
+video.addEventListener('keydown', (e) => {
+  if (e.key === 'f' || e.key === 'F') {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener('contextmenu', (e) => {
+  if (e.target.tagName === 'VIDEO') {
+    e.preventDefault();
+  }
+});
+
+// Manual open button
+manualOpenBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.open(SMART_LINK, '_blank', 'noopener,noreferrer');
+});
+
+// Try multiple methods to load content
+function loadContent() {
+  let methodsAttempted = 0;
+  const totalMethods = 3;
+  
+  // Method 1: Try embed tag (works for many sites)
+  function tryEmbed() {
+    console.log('Trying embed method...');
+    embedContainer.innerHTML = `
+      <embed src="${SMART_LINK}" 
+             type="text/html" 
+             width="100%" 
+             height="100%" 
+             style="border: none;">
+    `;
+    
+    // Check if it loaded after 3 seconds
+    setTimeout(() => {
+      methodsAttempted++;
+      if (embedContainer.querySelector('embed')) {
+        console.log('Embed method working');
+        hideLoading();
+      } else if (methodsAttempted < totalMethods) {
+        tryObject();
+      }
+    }, 3000);
+  }
+  
+  // Method 2: Try object tag
+  function tryObject() {
+    console.log('Trying object method...');
+    embedContainer.innerHTML = `
+      <object data="${SMART_LINK}" 
+              type="text/html" 
+              width="100%" 
+              height="100%" 
+              style="border: none;">
+        <p>Content loading...</p>
+      </object>
+    `;
+    
+    setTimeout(() => {
+      methodsAttempted++;
+      if (embedContainer.querySelector('object')) {
+        console.log('Object method working');
+        hideLoading();
+      } else if (methodsAttempted < totalMethods) {
+        tryIframe();
+      }
+    }, 3000);
+  }
+  
+  // Method 3: Try iframe with sandbox (last resort)
+  function tryIframe() {
+    console.log('Trying iframe method...');
+    embedContainer.innerHTML = `
+      <iframe src="${SMART_LINK}" 
+              width="100%" 
+              height="100%" 
+              frameborder="0"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-top-navigation-by-user-activation"
+              style="border: none;">
+      </iframe>
+    `;
+    
+    setTimeout(() => {
+      const iframe = embedContainer.querySelector('iframe');
+      
+      iframe.addEventListener('load', () => {
+        console.log('Iframe loaded');
+        hideLoading();
+      });
+      
+      iframe.addEventListener('error', () => {
+        console.log('All methods failed');
+        showFallback();
+      });
+      
+      // If nothing loads in 5 seconds, show fallback
+      setTimeout(() => {
+        // Check if we should show fallback
+        if (loadingState.style.display !== 'none') {
+          showFallback();
+        }
+      }, 5000);
+    }, 1000);
+  }
+  
+  // Show fallback UI
+  function showFallback() {
+    embedContainer.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #1a1a1a; padding: 20px; text-align: center;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" style="margin-bottom: 20px;">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        <h2 style="color: #fff; margin-bottom: 15px; font-size: 24px;">Content Ready</h2>
+        <p style="color: #aaa; margin-bottom: 25px; font-size: 16px; max-width: 400px;">
+          The content cannot be embedded due to security restrictions. Click below to open it.
+        </p>
+        <a href="${SMART_LINK}" target="_blank" rel="noopener noreferrer" 
+           style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; transition: transform 0.3s ease;"
+           onmouseover="this.style.transform='translateY(-2px)'"
+           onmouseout="this.style.transform='translateY(0)'">
+          Open Content
+        </a>
+        <p style="color: #666; margin-top: 20px; font-size: 13px;">
+          Video continues playing while you browse
+        </p>
+      </div>
+    `;
+    hideLoading();
+  }
+  
+  function hideLoading() {
+    loadingState.style.display = 'none';
+  }
+  
+  // Start with embed method
+  tryEmbed();
+}
+
+// Start everything on page load
+window.addEventListener('DOMContentLoaded', () => {
+  // Start video
+  video.play().catch(err => {
+    console.log("Autoplay prevented:", err);
+  });
+  
+  // Load content after short delay
+  setTimeout(() => {
+    loadContent();
+  }, 500);
+});
+
+// Ensure video plays on user interaction if autoplay failed
+let hasInteracted = false;
+const ensurePlay = () => {
+  if (!hasInteracted && video.paused) {
+    video.play().catch(err => console.log("Play error:", err));
+    hasInteracted = true;
+  }
+};
+
+document.addEventListener('click', ensurePlay, { once: true });
+document.addEventListener('touchstart', ensurePlay, { once: true });
+
+// Handle orientation changes
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+  }, 100);
+});
+</script>
+
+</body>
+</html>
