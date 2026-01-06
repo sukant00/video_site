@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Player</title>
+<title>Video with Content</title>
 
 <style>
 * {
@@ -77,55 +77,114 @@ video::-internal-media-controls-download-button {
 
 /* ===== CONTENT SECTION ===== */
 #content-section {
-  background: #1a1a1a;
+  background: #fff;
   flex: 1;
   position: relative;
   overflow: hidden;
+}
+
+/* Embed container */
+#embed-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #fff;
+}
+
+#content-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* INVISIBLE CLICK LAYER - This is what you asked for! */
+#click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: transparent;
+  cursor: pointer;
+  display: none; /* Hidden until content loads */
+}
+
+/* Optional: Show subtle hint on hover */
+#click-overlay:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* Optional: Click indicator */
+#click-overlay::after {
+  content: '🔗 Click to open in new tab';
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#click-overlay:hover::after {
+  opacity: 1;
+}
+
+/* Loading state */
+#loading-state {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #1a1a1a;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
-.content-info {
-  text-align: center;
-  padding: 30px;
-  max-width: 600px;
-}
-
-.content-info h2 {
-  color: #fff;
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-
-.content-info p {
-  color: #aaa;
-  font-size: 16px;
-  line-height: 1.6;
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #333;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 20px;
 }
 
-.ad-zone {
-  width: 100%;
-  max-width: 800px;
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Error message */
-.error-message {
-  text-align: center;
-  padding: 40px;
-  color: #ff6b6b;
+#loading-state p {
+  color: #aaa;
+  font-size: 16px;
+  margin-bottom: 20px;
 }
 
-.error-message h3 {
-  font-size: 24px;
-  margin-bottom: 10px;
+.manual-link {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.manual-link:hover {
+  transform: translateY(-2px);
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -169,14 +228,6 @@ video::-internal-media-controls-download-button {
   #content-section {
     height: 50vh;
   }
-  
-  .content-info h2 {
-    font-size: 24px;
-  }
-  
-  .content-info p {
-    font-size: 15px;
-  }
 }
 
 /* Mobile landscape */
@@ -202,21 +253,11 @@ video::-internal-media-controls-download-button {
     height: 100vh;
   }
   
-  .content-info {
-    padding: 15px;
-  }
-  
-  .content-info h2 {
-    font-size: 20px;
-  }
-  
-  .content-info p {
-    font-size: 14px;
-  }
-  
-  .ad-zone {
-    min-height: 200px;
-    padding: 10px;
+  #click-overlay::after {
+    font-size: 11px;
+    padding: 6px 12px;
+    bottom: 10px;
+    right: 10px;
   }
 }
 
@@ -236,16 +277,11 @@ video::-internal-media-controls-download-button {
     height: 50vh;
   }
   
-  .content-info {
-    padding: 20px;
-  }
-  
-  .content-info h2 {
-    font-size: 22px;
-  }
-  
-  .content-info p {
-    font-size: 14px;
+  #click-overlay::after {
+    font-size: 12px;
+    padding: 6px 12px;
+    bottom: 15px;
+    right: 15px;
   }
 }
 
@@ -264,69 +300,12 @@ video::-internal-media-controls-download-button {
   #content-section {
     height: 55vh;
   }
-  
-  .content-info {
-    padding: 15px;
-  }
-  
-  .content-info h2 {
-    font-size: 20px;
-  }
-  
-  .content-info p {
-    font-size: 13px;
-  }
-  
-  .ad-zone {
-    min-height: 150px;
-    padding: 10px;
-  }
-}
-
-/* Loading overlay */
-#loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #0f0f0f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease;
-}
-
-.loader {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #333;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-hidden {
-  opacity: 0;
-  pointer-events: none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- Loading Overlay -->
-<div id="loading-overlay">
-  <div class="loader"></div>
-</div>
-
-<!-- Main Container -->
 <div id="main-container">
   <!-- VIDEO SECTION -->
   <div id="video-section">
@@ -339,7 +318,7 @@ video::-internal-media-controls-download-button {
              loop
              controlslist="nodownload nofullscreen noremoteplayback"
              disablepictureinpicture>
-        <!-- Video source will be set dynamically -->
+        <!-- Video source will be set dynamically from URL parameter -->
         Your browser does not support video.
       </video>
     </div>
@@ -347,24 +326,23 @@ video::-internal-media-controls-download-button {
 
   <!-- CONTENT SECTION -->
   <div id="content-section">
-    <div class="content-info">
-      <h2>Enjoy Your Content</h2>
-      <p>Watch the video above and explore more content. Click anywhere to discover additional features.</p>
+    <!-- INVISIBLE CLICK LAYER - Opens link in new tab -->
+    <div id="click-overlay"></div>
+    
+    <div id="embed-container">
+      <!-- This will be populated with embed tag -->
     </div>
     
-    <!-- Ad Zone -->
-    <div class="ad-zone" id="ad-zone">
-      <!-- OnClickA ads will trigger on user clicks -->
+    <div id="loading-state">
+      <div class="spinner"></div>
+      <p>Loading content...</p>
+      <a href="#" class="manual-link" id="manual-open">Open in New Window</a>
     </div>
   </div>
 </div>
 
-<!-- ===== ONCLICKA AD SCRIPT ===== -->
-<script async src="https://js.onclckmn.com/static/onclicka.js" data-admpid="409201"></script>
-
-<!-- ===== MAIN SCRIPT ===== -->
 <script>
-// Get video URL from query parameter
+// ===== GET VIDEO URL FROM QUERY PARAMETER =====
 function getVideoUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const videoParam = urlParams.get('v') || urlParams.get('video');
@@ -374,19 +352,24 @@ function getVideoUrl() {
     if (videoParam.startsWith('http://') || videoParam.startsWith('https://')) {
       return videoParam;
     }
-    // If it's just an ID or partial URL, construct the full URL
-    // Adjust this based on your video hosting setup
+    // If it's just a video ID, construct the full URL
     return `https://vz-148705f6-876.b-cdn.net/${videoParam}/playlist.m3u8`;
   }
   
   // Default video if no parameter provided
-  return 'https://vz-148705f6-876.b-cdn.net/83ee655b-2133-4f97-b28f-42357bee2696/playlist.m3u8';
+  return 'https://vz-148705f6-876.b-cdn.net/064c2446-d713-4701-9f1c-abb73cee3488/playlist.m3u8';
 }
 
-const video = document.getElementById("videoPlayer");
-const loadingOverlay = document.getElementById("loading-overlay");
+// ===== SMART LINK (Ad URL) =====
+const SMART_LINK = "https://adclickad.com/get/?spot_id=6099728&cat=25&subid=679049624";
 
-// Set video source
+const video = document.getElementById("videoPlayer");
+const embedContainer = document.getElementById("embed-container");
+const loadingState = document.getElementById("loading-state");
+const manualOpenBtn = document.getElementById("manual-open");
+const clickOverlay = document.getElementById("click-overlay");
+
+// Set video source dynamically
 const videoUrl = getVideoUrl();
 const source = document.createElement('source');
 source.src = videoUrl;
@@ -398,7 +381,7 @@ console.log('Loading video:', videoUrl);
 // Disable right click on video
 video.oncontextmenu = e => e.preventDefault();
 
-// Prevent fullscreen via keyboard and events
+// Prevent fullscreen
 video.addEventListener('fullscreenchange', () => {
   if (document.fullscreenElement) {
     document.exitFullscreen();
@@ -417,77 +400,170 @@ video.addEventListener('keydown', (e) => {
   }
 });
 
-// Prevent context menu on video
 document.addEventListener('contextmenu', (e) => {
   if (e.target.tagName === 'VIDEO') {
     e.preventDefault();
   }
 });
 
-// Hide loading overlay
-function hideLoading() {
-  setTimeout(() => {
-    loadingOverlay.classList.add('loading-hidden');
+// INVISIBLE LAYER CLICK HANDLER - Opens in new tab
+clickOverlay.addEventListener('click', (e) => {
+  e.preventDefault();
+  console.log('Click overlay clicked - Opening in new tab');
+  window.open(SMART_LINK, '_blank', 'noopener,noreferrer');
+});
+
+// Manual open button
+manualOpenBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.open(SMART_LINK, '_blank', 'noopener,noreferrer');
+});
+
+// Try multiple methods to load content
+function loadContent() {
+  let methodsAttempted = 0;
+  const totalMethods = 3;
+  
+  // Method 1: Try embed tag (works for many sites)
+  function tryEmbed() {
+    console.log('Trying embed method...');
+    embedContainer.innerHTML = `
+      <embed src="${SMART_LINK}" 
+             type="text/html" 
+             width="100%" 
+             height="100%" 
+             style="border: none; pointer-events: none;">
+    `;
+    
+    // Check if it loaded after 3 seconds
     setTimeout(() => {
-      loadingOverlay.style.display = 'none';
-    }, 500);
-  }, 800);
+      methodsAttempted++;
+      if (embedContainer.querySelector('embed')) {
+        console.log('Embed method working');
+        hideLoadingAndShowOverlay();
+      } else if (methodsAttempted < totalMethods) {
+        tryObject();
+      }
+    }, 3000);
+  }
+  
+  // Method 2: Try object tag
+  function tryObject() {
+    console.log('Trying object method...');
+    embedContainer.innerHTML = `
+      <object data="${SMART_LINK}" 
+              type="text/html" 
+              width="100%" 
+              height="100%" 
+              style="border: none; pointer-events: none;">
+        <p>Content loading...</p>
+      </object>
+    `;
+    
+    setTimeout(() => {
+      methodsAttempted++;
+      if (embedContainer.querySelector('object')) {
+        console.log('Object method working');
+        hideLoadingAndShowOverlay();
+      } else if (methodsAttempted < totalMethods) {
+        tryIframe();
+      }
+    }, 3000);
+  }
+  
+  // Method 3: Try iframe with sandbox (last resort)
+  function tryIframe() {
+    console.log('Trying iframe method...');
+    embedContainer.innerHTML = `
+      <iframe src="${SMART_LINK}" 
+              width="100%" 
+              height="100%" 
+              frameborder="0"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-top-navigation-by-user-activation"
+              style="border: none; pointer-events: none;">
+      </iframe>
+    `;
+    
+    setTimeout(() => {
+      const iframe = embedContainer.querySelector('iframe');
+      
+      iframe.addEventListener('load', () => {
+        console.log('Iframe loaded');
+        hideLoadingAndShowOverlay();
+      });
+      
+      iframe.addEventListener('error', () => {
+        console.log('All methods failed');
+        showFallback();
+      });
+      
+      // If nothing loads in 5 seconds, show fallback with overlay
+      setTimeout(() => {
+        if (loadingState.style.display !== 'none') {
+          showFallback();
+        }
+      }, 5000);
+    }, 1000);
+  }
+  
+  // Show fallback UI with click overlay
+  function showFallback() {
+    embedContainer.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #1a1a1a; padding: 20px; text-align: center; pointer-events: none;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" style="margin-bottom: 20px;">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        <h2 style="color: #fff; margin-bottom: 15px; font-size: 24px;">Content Preview</h2>
+        <p style="color: #aaa; margin-bottom: 25px; font-size: 16px; max-width: 400px;">
+          Click anywhere in this area to open the content in a new tab
+        </p>
+        <div style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-radius: 8px; font-weight: bold; font-size: 16px;">
+          Click to Open
+        </div>
+        <p style="color: #666; margin-top: 20px; font-size: 13px;">
+          Video continues playing while you browse
+        </p>
+      </div>
+    `;
+    hideLoadingAndShowOverlay();
+  }
+  
+  function hideLoadingAndShowOverlay() {
+    loadingState.style.display = 'none';
+    // Show the invisible click overlay
+    clickOverlay.style.display = 'block';
+    console.log('Click overlay is now active');
+  }
+  
+  // Start with embed method
+  tryEmbed();
 }
 
 // Start everything on page load
 window.addEventListener('DOMContentLoaded', () => {
-  // Start video playback
-  video.play()
-    .then(() => {
-      console.log('Video started playing');
-      hideLoading();
-    })
-    .catch(err => {
-      console.log("Autoplay prevented:", err);
-      hideLoading();
-    });
+  // Start video
+  video.play().catch(err => {
+    console.log("Autoplay prevented:", err);
+  });
   
-  // Log OnClickA script load
-  console.log('OnClickA ad script loaded');
+  // Load content after short delay
+  setTimeout(() => {
+    loadContent();
+  }, 500);
 });
 
 // Ensure video plays on user interaction if autoplay failed
 let hasInteracted = false;
 const ensurePlay = () => {
   if (!hasInteracted && video.paused) {
-    video.play()
-      .then(() => {
-        console.log('Video playing after interaction');
-      })
-      .catch(err => {
-        console.log("Play error:", err);
-      });
+    video.play().catch(err => console.log("Play error:", err));
     hasInteracted = true;
   }
 };
 
-// Add interaction listeners
 document.addEventListener('click', ensurePlay, { once: true });
 document.addEventListener('touchstart', ensurePlay, { once: true });
-
-// Handle video errors
-video.addEventListener('error', (e) => {
-  console.error('Video error:', e);
-  const errorMsg = document.createElement('div');
-  errorMsg.className = 'error-message';
-  errorMsg.innerHTML = `
-    <h3>⚠️ Video Load Error</h3>
-    <p>Unable to load video. Please check the URL.</p>
-    <p style="font-size: 12px; color: #666; margin-top: 10px;">URL: ${videoUrl}</p>
-  `;
-  document.querySelector('.content-info').appendChild(errorMsg);
-  hideLoading();
-});
-
-// Handle video loaded
-video.addEventListener('loadeddata', () => {
-  console.log('Video loaded successfully');
-});
 
 // Handle orientation changes
 window.addEventListener('orientationchange', () => {
@@ -496,11 +572,9 @@ window.addEventListener('orientationchange', () => {
   }, 100);
 });
 
-// Log ad clicks (for debugging)
-let clickCount = 0;
-document.addEventListener('click', (e) => {
-  clickCount++;
-  console.log('Click detected - OnClickA ad may trigger. Total clicks:', clickCount);
+// Log clicks for debugging
+clickOverlay.addEventListener('mouseenter', () => {
+  console.log('Mouse over click overlay');
 });
 </script>
 
