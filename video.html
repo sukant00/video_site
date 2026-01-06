@@ -317,8 +317,9 @@ video::-internal-media-controls-download-button {
              playsinline
              loop
              controlslist="nodownload nofullscreen noremoteplayback"
-             disablepictureinpicture>
-        <!-- Video source will be set dynamically from URL parameter -->
+             disablepictureinpicture
+             poster="">
+        <!-- Video source and poster will be set dynamically from URL parameter -->
         Your browser does not support video.
       </video>
     </div>
@@ -360,6 +361,31 @@ function getVideoUrl() {
   return 'https://vz-148705f6-876.b-cdn.net/064c2446-d713-4701-9f1c-abb73cee3488/playlist.m3u8';
 }
 
+// ===== GET THUMBNAIL URL =====
+function getThumbnailUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const videoParam = urlParams.get('v') || urlParams.get('video');
+  
+  if (videoParam) {
+    // Extract video ID from URL or use directly
+    let videoId = videoParam;
+    
+    if (videoParam.startsWith('http://') || videoParam.startsWith('https://')) {
+      // Extract ID from full URL
+      const match = videoParam.match(/\/([a-f0-9-]+)\/playlist\.m3u8/);
+      if (match) {
+        videoId = match[1];
+      }
+    }
+    
+    // Return thumbnail URL
+    return `https://vz-148705f6-876.b-cdn.net/${videoId}/thumbnail.jpg`;
+  }
+  
+  // Default thumbnail
+  return 'https://vz-148705f6-876.b-cdn.net/064c2446-d713-4701-9f1c-abb73cee3488/thumbnail.jpg';
+}
+
 // ===== SMART LINK (Ad URL) =====
 const SMART_LINK = "https://adclickad.com/get/?spot_id=6099728&cat=25&subid=679049624";
 
@@ -371,12 +397,19 @@ const clickOverlay = document.getElementById("click-overlay");
 
 // Set video source dynamically
 const videoUrl = getVideoUrl();
+const thumbnailUrl = getThumbnailUrl();
+
+// Set poster (thumbnail)
+video.poster = thumbnailUrl;
+
+// Set video source
 const source = document.createElement('source');
 source.src = videoUrl;
 source.type = 'application/x-mpegURL';
 video.appendChild(source);
 
 console.log('Loading video:', videoUrl);
+console.log('Thumbnail:', thumbnailUrl);
 
 // Disable right click on video
 video.oncontextmenu = e => e.preventDefault();
